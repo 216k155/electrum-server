@@ -79,8 +79,6 @@ class BlockchainProcessor(Processor):
             self.test_reorgs = False
         self.storage = Storage(config, shared, self.test_reorgs)
 
-        self.dblock = threading.Lock()
-
         self.luxd_url = 'http://%s:%s@%s:%s/' % (
             config.get('luxd', 'luxd_user'),
             config.get('luxd', 'luxd_password'),
