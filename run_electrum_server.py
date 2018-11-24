@@ -99,6 +99,7 @@ def create_config(filename=None):
     config.set('server', 'irc', 'no')
     config.set('server', 'irc_nick', '')
     config.set('server', 'coin', '')
+    config.set('server', 'logfile', '/var/log/electrum.log')
     config.set('server', 'donation_address', '')
     config.set('server', 'max_subscriptions', '10000')
 
@@ -113,7 +114,7 @@ def create_config(filename=None):
 
     # set network parameters
     config.add_section('network')
-    config.set('network', 'type', 'bitcoin_main')
+    config.set('network', 'type', 'lux_main')
 
     # try to find the config file in the default paths
     if not filename:
@@ -224,7 +225,8 @@ def start_server(config):
     global shared, chain_proc, server_proc, dispatcher
     global tcp_server, ssl_server
 
-    utils.init_logger()
+    logfile = config.get('server', 'logfile')
+    utils.init_logger(logfile)
     host = config.get('server', 'host')
     stratum_tcp_port = get_port(config, 'stratum_tcp_port')
     stratum_tcp_ssl_port = get_port(config, 'stratum_tcp_ssl_port')

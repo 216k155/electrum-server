@@ -1,14 +1,15 @@
-# Main network and testnet3 definitions
+# Main network and testnet4 definitions
 
+# Lux src/chainparams.cpp
 params = {
-    'bitcoin_main': {
-        'pubkey_address': 0,
-        'script_address': 5,
-        'genesis_hash': '000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f'
+    'lux_main': {
+        'pubkey_address': 48,
+        'script_address': 63,
+        'genesis_hash': '00000759bb3da130d7c9aedae170da8335f5a0d01a9007e4c8d3ccd08ace6a42'
     },
-    'bitcoin_test': {
-        'pubkey_address': 111,
-        'script_address': 196,
-        'genesis_hash': '000000000933ea01ad0ee984209779baaec3ced90fa3f408719526f8d77f4943'
+    'lux_test': {
+        'pubkey_address': 48,
+        'script_address': 64,
+        'genesis_hash': '00000b773a72afd051c6fe34c6d9c8e1ba78b1556263c807a1ca7d7a200cda82'
     }
 }

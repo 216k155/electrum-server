@@ -26,8 +26,8 @@ Conventions
 In this document, lines starting with a hash sign (#) or a dollar sign ($)
 contain commands. Commands starting with a hash should be run as root,
 commands starting with a dollar should be run as a normal user (in this
-document, we assume that user is called 'bitcoin'). We also assume the
-bitcoin user has sudo rights, so we use `$ sudo command` when we need to.
+document, we assume that user is called 'lux'). We also assume the
+lux user has sudo rights, so we use `$ sudo command` when we need to.
 
 Strings that are surrounded by "lower than" and "greater than" ( < and > )
 should be replaced by the user with something appropriate. For example,
@@ -60,16 +60,16 @@ Python libraries. Python 2.7 is the minimum supported version.
 
 **Hardware.** The lightest setup is a pruning server with disk space
 requirements of about 50 GB for the Electrum database (January 2017). However note that
-you also need to run bitcoind and keep a copy of the full blockchain,
+you also need to run luxd and keep a copy of the full blockchain,
 which is roughly 125 GB (January 2017). Ideally you have a machine with 16 GB of RAM
-and an equal amount of swap. If you have ~2 GB of RAM make sure you limit bitcoind 
+and an equal amount of swap. If you have ~2 GB of RAM make sure you limit luxd
 to 8 concurrent connections by disabling incoming connections. electrum-server may
 bail-out on you from time to time with less than 4 GB of RAM, so you might have to 
 monitor the process and restart it. You can tweak cache sizes in the config to an extend
 but most RAM will be used to process blocks and catch-up on initial start.
 
 CPU speed is less important than fast I/O speed. electrum-server makes use of one core 
-only leaving spare cycles for bitcoind. Fast single core CPU power helps for the initial 
+only leaving spare cycles for luxd. Fast single core CPU power helps for the initial
 block chain import. Any multi-core x86 CPU with CPU Mark / PassMark > 1500 will work
 (see https://www.cpubenchmark.net/). An ideal setup in February 2016 has 16 GB+ RAM and
 SSD for good i/o speed.
@@ -77,78 +77,78 @@ SSD for good i/o speed.
 Instructions
 ------------
 
-### Step 1. Create a user for running bitcoind and Electrum server
+### Step 1. Create a user for running luxd and Electrum server
 
 This step is optional, but for better security and resource separation I
-suggest you create a separate user just for running `bitcoind` and Electrum.
+suggest you create a separate user just for running `luxd` and Electrum.
 We will also use the `~/bin` directory to keep locally installed files
 (others might want to use `/usr/local/bin` instead). We will download source
 code files to the `~/src` directory.
 
-    $ sudo adduser bitcoin --disabled-password
+    $ sudo adduser lux --disabled-password
     $ sudo apt-get install git
-    $ sudo su - bitcoin
+    $ sudo su - lux
     $ mkdir ~/bin ~/src
     $ echo $PATH
 
-If you don't see `/home/bitcoin/bin` in the output, you should add this line
+If you don't see `/home/lux/bin` in the output, you should add this line
 to your `.bashrc`, `.profile`, or `.bash_profile`, then logout and relogin:
 
     PATH="$HOME/bin:$PATH"
     $ exit
 
-### Step 2. Download bitcoind
+### Step 2. Download luxd
 
-We currently recommend bitcoin core 0.15.1 stable. If your package manager does not supply
-a recent bitcoind or you prefer to compile it yourself, here are some pointers for Ubuntu:
+We currently recommend lux core 0.15.1 stable. If your package manager does not supply
+a recent luxd or you prefer to compile it yourself, here are some pointers for Ubuntu:
 
     $ sudo apt-get install make bsdmainutils g++ python-leveldb libboost-all-dev libssl-dev libdb++-dev pkg-config libevent-dev
-    $ sudo su - bitcoin
-    $ cd ~/src && wget https://bitcoin.org/bin/bitcoin-core-0.15.1/bitcoin-0.15.1.tar.gz
-    $ sha256sum bitcoin-0.15.1.tar.gz | grep 34de2dbe058c1f8b6464494468ebe2ff0422614203d292da1c6458d6f87342b4
-    $ tar xfz bitcoin-0.15.1.tar.gz
-    $ cd bitcoin-0.15.1
+    $ sudo su - lux
+    $ cd ~/src && wget https://lux.org/bin/lux-core-0.15.1/lux-0.15.1.tar.gz
+    $ sha256sum lux-0.15.1.tar.gz | grep 34de2dbe058c1f8b6464494468ebe2ff0422614203d292da1c6458d6f87342b4
+    $ tar xfz lux-0.15.1.tar.gz
+    $ cd lux-0.15.1
     $ ./configure --disable-wallet --without-miniupnpc
     $ make
-    $ strip src/bitcoind src/bitcoin-cli src/bitcoin-tx
-    $ cp -a src/bitcoind src/bitcoin-cli src/bitcoin-tx ~/bin
+    $ strip src/luxd src/lux-cli src/lux-tx
+    $ cp -a src/luxd src/lux-cli src/lux-tx ~/bin
 
-### Step 3. Configure and start bitcoind
+### Step 3. Configure and start luxd
 
-In order to allow Electrum to "talk" to `bitcoind`, we need to set up an RPC
-username and password for `bitcoind`. We will then start `bitcoind` and
+In order to allow Electrum to "talk" to `luxd`, we need to set up an RPC
+username and password for `luxd`. We will then start `luxd` and
 wait for it to complete downloading the blockchain.
 
-    $ mkdir ~/.bitcoin
-    $ $EDITOR ~/.bitcoin/bitcoin.conf
+    $ mkdir ~/.lux
+    $ $EDITOR ~/.lux/lux.conf
 
-Write this in `bitcoin.conf`:
+Write this in `lux.conf`:
 
     daemon=1
     txindex=1
 
 rpcuser / rpcpassword options are only needed for non-localhost connections.
-you can consider setting maxconnections if you want to reduce bitcoind bandwidth
+you can consider setting maxconnections if you want to reduce luxd bandwidth
 (as stated above)
 
-If you have an existing installation of bitcoind and have not previously
+If you have an existing installation of luxd and have not previously
 set txindex=1 you need to reindex the blockchain by running
 
-    $ bitcoind -reindex
+    $ luxd -reindex
 
-If you already have a freshly indexed copy of the blockchain with txindex start `bitcoind`:
+If you already have a freshly indexed copy of the blockchain with txindex start `luxd`:
 
-    $ bitcoind
+    $ luxd
 
-Allow some time to pass for `bitcoind` to connect to the network and start
+Allow some time to pass for `luxd` to connect to the network and start
 downloading blocks. You can check its progress by running:
 
-    $ bitcoin-cli getblockchaininfo
+    $ lux-cli getblockchaininfo
 
-Before starting the Electrum server your bitcoind should have processed all
+Before starting the Electrum server your luxd should have processed all
 blocks and caught up to the current height of the network (not just the headers).
-You should also set up your system to automatically start bitcoind at boot
-time, running as the 'bitcoin' user. Check your system documentation to
+You should also set up your system to automatically start luxd at boot
+time, running as the 'lux' user. Check your system documentation to
 find out the best way to do this.
 
 ### Step 4. Download and install Electrum server
@@ -279,7 +279,7 @@ in case you need to restore them.
 ### Step 9. Configure Electrum server
 
 Electrum reads a config file (/etc/electrum.conf) when starting up. This
-file includes the database setup, bitcoind RPC setup, and a few other
+file includes the database setup, luxd RPC setup, and a few other
 options.
 
 The "configure" script listed above will create a config file at /etc/electrum.conf
@@ -295,11 +295,11 @@ file handles for each connection made to the server. It's good practice to incre
 open files limit to 128k.
 
 The "configure" script will take care of this and ask you to create a user for running electrum-server.
-If you're using the user `bitcoin` to run electrum and have added it as shown in this document, run
+If you're using the user `lux` to run electrum and have added it as shown in this document, run
 the following code to add the limits to your /etc/security/limits.conf:
 
-     echo "bitcoin hard nofile 131072" >> /etc/security/limits.conf
-     echo "bitcoin soft nofile 131072" >> /etc/security/limits.conf
+     echo "lux hard nofile 131072" >> /etc/security/limits.conf
+     echo "lux soft nofile 131072" >> /etc/security/limits.conf
 
 If you are on Debian > 8.0 Jessie or another distribution based on it, you also need to add these lines in /etc/pam.d/common-session and /etc/pam.d/common-session-noninteractive otherwise the limits in /etc/security/limits.conf will not work:
 
@@ -308,21 +308,21 @@ If you are on Debian > 8.0 Jessie or another distribution based on it, you also 
 
 Check if the limits are changed either by logging with the user configured to run Electrum server as. Example:
 
-    su - bitcoin
+    su - lux
     ulimit -n
 
 Or if you use sudo and the user is added to sudoers group:
 
-    sudo -u bitcoin -i ulimit -n
+    sudo -u lux -i ulimit -n
 
 
 Two more things for you to consider:
 
 1. To increase privacy of transactions going through your server
-   you may want to close bitcoind for incoming connections and connect outbound only. Most servers do run
+   you may want to close luxd for incoming connections and connect outbound only. Most servers do run
    full nodes with open incoming connections though.
 
-2. Consider restarting bitcoind (together with electrum-server) on a weekly basis to clear out unconfirmed
+2. Consider restarting luxd (together with electrum-server) on a weekly basis to clear out unconfirmed
    transactions from the local the memory pool which did not propagate over the network.
 
 ### Step 11. (Finally!) Run Electrum server
@@ -367,7 +367,7 @@ or hostname and the port. Press 'Ok' and the client will disconnect from the
 current server and connect to your new Electrum server. You should see your
 addresses and transactions history. You can see the number of blocks and
 response time in the server selection window. You should send/receive some
-bitcoins to confirm that everything is working properly.
+luxs to confirm that everything is working properly.
 
 ### Step 13. Join us on IRC, subscribe to the server thread
 

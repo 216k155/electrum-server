@@ -26,21 +26,23 @@ import threading
 import time
 import hashlib
 import struct
+import phi2_hash
 
 __b58chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
 __b58base = len(__b58chars)
 
 global PUBKEY_ADDRESS
 global SCRIPT_ADDRESS
-PUBKEY_ADDRESS = 0
-SCRIPT_ADDRESS = 5
+PUBKEY_ADDRESS = 48
+SCRIPT_ADDRESS = 63
 
 def rev_hex(s):
     return s.decode('hex')[::-1].encode('hex')
 
+# Use lux's phi2_hash Function
+HashPhi2 = lambda x: phi2_hash.getPoWHash(x)
 
 Hash = lambda x: hashlib.sha256(hashlib.sha256(x).digest()).digest()
-
 
 hash_encode = lambda x: x[::-1].encode('hex')
 
@@ -93,6 +95,8 @@ def header_from_string(s):
         'timestamp': bytes4_to_int(s[68:72]),
         'bits': bytes4_to_int(s[72:76]),
         'nonce': bytes4_to_int(s[76:80]),
+        'hash_state_root': hash_encode(s[80:112]),
+        'hash_utxo_root': hash_encode(s[112:144]),
     }
 
 
@@ -166,7 +170,7 @@ def b58encode(v):
         long_value = div
     result = __b58chars[long_value] + result
 
-    # Bitcoin does a little leading-zero-compression:
+    # Lux does a little leading-zero-compression:
     # leading 0-bytes in the input become leading-1s
     nPad = 0
     for c in v:

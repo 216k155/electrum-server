@@ -47,8 +47,8 @@ fi
 if [ ! id -u $user >/dev/null 2>&1 ]; then
     echo "adding user $user"
     useradd $user
-    echo "$user hard nofile 131072" >> /etc/security/limits.conf
-    echo "$user soft nofile 131072" >> /etc/security/limits.conf
+    echo "$user hard nofile 65536" >> /etc/security/limits.conf
+    echo "$user soft nofile 65536" >> /etc/security/limits.conf
 fi
 
 
@@ -88,11 +88,11 @@ fi
 # download database
 if [ ! -d $path ]; then
     echo "Database not found in $path."
-    read -p "Do you want to download it from the Electrum foundry to $path ? " -n 1 -r
+    read -p "Do you want to download it from the lux Electrum repository to $path ? " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
 	mkdir -p $path
-	wget -O - "http://foundry.electrum.org/leveldb-dump/electrum-fulltree-100-latest.tar.gz" | tar --extract --gunzip --strip-components 1 --directory $path --file -
+	wget --no-check-certificate -O - "https://luxcore.io/blockchain/electrumdb" | tar --extract --gunzip --strip-components 1 --directory $path --file -
     fi
 fi
 
@@ -108,16 +108,16 @@ fi
 chown $user:$user $logfile
 
 
-bitcoind_user=$(read_config "bitcoind_user")
-if ! [ "$bitcoind_user" ]; then
-    read -p "rpcuser (from your bitcoin.conf file, leave empty for localhost): " -r
-    write_config "bitcoind_user" $REPLY
+luxd_user=$(read_config "luxd_user")
+if ! [ "$luxd_user" ]; then
+    read -p "rpcuser (from your lux.conf file): " -r
+    write_config "luxd_user" $REPLY
 fi
 
-bitcoind_password=$(read_config "bitcoind_password")
-if ! [ "$bitcoind_password" ]; then
-    read -p "rpcpassword (from your bitcoin.conf file, leave emtpy for localhost): " -r
-    write_config "bitcoind_password" $REPLY
+luxd_password=$(read_config "luxd_password")
+if ! [ "$luxd_password" ]; then
+    read -p "rpcpassword (from your lux.conf file): " -r
+    write_config "luxd_password" $REPLY
 fi
 
 
