@@ -99,19 +99,14 @@ to your `.bashrc`, `.profile`, or `.bash_profile`, then logout and relogin:
 
 ### Step 2. Download luxd
 
-We currently recommend lux core 0.15.1 stable. If your package manager does not supply
+We currently recommend luxcore 5.2.5 stable. If your package manager does not supply
 a recent luxd or you prefer to compile it yourself, here are some pointers for Ubuntu:
 
-    $ sudo apt-get install make bsdmainutils g++ python-leveldb libboost-all-dev libssl-dev libdb++-dev pkg-config libevent-dev
-    $ sudo su - lux
-    $ cd ~/src && wget https://lux.org/bin/lux-core-0.15.1/lux-0.15.1.tar.gz
-    $ sha256sum lux-0.15.1.tar.gz | grep 34de2dbe058c1f8b6464494468ebe2ff0422614203d292da1c6458d6f87342b4
-    $ tar xfz lux-0.15.1.tar.gz
-    $ cd lux-0.15.1
-    $ ./configure --disable-wallet --without-miniupnpc
-    $ make
-    $ strip src/luxd src/lux-cli src/lux-tx
-    $ cp -a src/luxd src/lux-cli src/lux-tx ~/bin
+     sudo apt-get install git
+     sudo su - lux
+     sudo add-apt-repository ppa:bitcoin/bitcoin; git clone https://github.com/LUX-Core/lux; cd lux; depends/install-dependencies.sh; ./autogen.sh; ./configure --disable-tests --with-boost-libdir=/usr/local/lib; make clean; make -j$(nproc)
+     strip src/luxd src/lux-cli src/lux-tx
+     cp -a src/luxd src/lux-cli src/lux-tx ~/bin
 
 ### Step 3. Configure and start luxd
 
@@ -119,8 +114,8 @@ In order to allow Electrum to "talk" to `luxd`, we need to set up an RPC
 username and password for `luxd`. We will then start `luxd` and
 wait for it to complete downloading the blockchain.
 
-    $ mkdir ~/.lux
-    $ $EDITOR ~/.lux/lux.conf
+     mkdir ~/.lux
+     vim ~/.lux/lux.conf
 
 Write this in `lux.conf`:
 
@@ -156,7 +151,7 @@ find out the best way to do this.
 We will download the latest git snapshot for Electrum to configure and install it:
 
     $ cd ~
-    $ git clone https://github.com/spesmilo/electrum-server.git
+    $ git clone https://github.com/216k155/electrum-server.git
     $ cd electrum-server
     $ sudo apt-get install python-setuptools
     $ sudo ./configure
