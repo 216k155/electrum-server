@@ -33,11 +33,11 @@ fi
 # read username
 user=$(read_config "username")
 if ! [ "$user" ]; then
-    read -p "username for running daemon (default: electrum) " -r
+    read -p "username for running daemon (default: lux) " -r
     if [ $REPLY ]; then
 	user=$REPLY
     else
-	user="electrum"
+	user="lux"
     fi 
     write_config "username" $user
 fi
@@ -92,7 +92,7 @@ if [ ! -d $path ]; then
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
 	mkdir -p $path
-	wget --no-check-certificate -O - "https://luxcore.io/blockchain/electrumdb" | tar --extract --gunzip --strip-components 1 --directory $path --file -
+		wget --no-check-certificate -O - "https://luxcore.io/blockchain/electrumdb" | tar --extract --gunzip --strip-components 1 --directory $path --file -
     fi
 fi
 

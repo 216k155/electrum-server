@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python
+#!/usr/bin/env python
 # Copyright(C) 2011-2016 Thomas Voegtlin
 #
 # Permission is hereby granted, free of charge, to any person
@@ -79,6 +79,8 @@ class BlockchainProcessor(Processor):
             self.test_reorgs = False
         self.storage = Storage(config, shared, self.test_reorgs)
 
+        self.dblock = threading.Lock()
+
         self.luxd_url = 'http://%s:%s@%s:%s/' % (
             config.get('luxd', 'luxd_user'),
             config.get('luxd', 'luxd_password'),
@@ -101,6 +103,7 @@ class BlockchainProcessor(Processor):
 
 
     def do_catch_up(self):
+
         self.header = self.block2header(self.luxd('getblock', (self.storage.last_hash,)))
         self.header['utxo_root'] = self.storage.get_root_hash().encode('hex')
         self.catch_up(sync=False)
@@ -885,5 +888,6 @@ class BlockchainProcessor(Processor):
                         'method': 'blockchain.address.subscribe',
                         'params': (addr, status),
                         })
+
 
 
