@@ -76,17 +76,17 @@ We will also use the `~/bin` directory to keep locally installed files
 (others might want to use `/usr/local/bin` instead). We will download source
 code files to the `~/src` directory.
 
-    $ sudo adduser lux --disabled-password
-    $ sudo apt-get install git
-    $ sudo su - lux
-    $ mkdir ~/bin ~/src
-    $ echo $PATH
+     sudo adduser lux --disabled-password
+     sudo apt-get install git
+     sudo su - lux
+     mkdir ~/bin ~/src
+     echo $PATH
 
 If you don't see `/home/lux/bin` in the output, you should add this line
 to your `.bashrc`, `.profile`, or `.bash_profile`, then logout and relogin:
 
     PATH="$HOME/bin:$PATH"
-    $ exit
+    exit
 
 ### Step 2. Download luxd
 
@@ -110,8 +110,13 @@ wait for it to complete downloading the blockchain.
 
 Write this in `lux.conf`:
 
+    server=1
     daemon=1
     txindex=1
+    listen=1
+    rpcuser=rpcuser
+    rpcpassword=rpcpassword
+    rpcallowip=127.0.0.1
 
 rpcuser / rpcpassword options are only needed for non-localhost connections.
 you can consider setting maxconnections if you want to reduce luxd bandwidth
@@ -120,16 +125,16 @@ you can consider setting maxconnections if you want to reduce luxd bandwidth
 If you have an existing installation of luxd and have not previously
 set txindex=1 you need to reindex the blockchain by running
 
-    $ luxd -reindex
+     luxd -reindex
 
 If you already have a freshly indexed copy of the blockchain with txindex start `luxd`:
 
-    $ luxd
+     luxd
 
 Allow some time to pass for `luxd` to connect to the network and start
 downloading blocks. You can check its progress by running:
 
-    $ lux-cli getblockchaininfo
+     lux-cli getblockchaininfo
 
 Before starting the Electrum server your luxd should have processed all
 blocks and caught up to the current height of the network (not just the headers).
@@ -141,12 +146,12 @@ find out the best way to do this.
 
 We will download the latest git snapshot for Electrum to configure and install it:
 
-    $ cd ~
-    $ git clone https://github.com/216k155/electrum-server.git
-    $ cd electrum-server
-    $ sudo apt-get install python-setuptools
-    $ sudo ./configure
-    $ sudo python setup.py install
+     cd ~
+     git clone https://github.com/216k155/electrum-server.git
+     cd electrum-server
+     sudo apt-get install python-setuptools
+     sudo ./configure
+     sudo python setup.py install
 
 See the INSTALL file for more information about the configure and install commands.
 
@@ -156,8 +161,10 @@ Electrum server depends on various standard Python libraries and leveldb. These 
 installed by calling `python setup.py install` above. They can be also be installed with your
 package manager if you don't want to use the install routine.
 
-    $ sudo apt-get install python-setuptools python-openssl python-leveldb libleveldb-dev
-    $ sudo easy_install jsonrpclib irc plyvel
+     sudo apt-get install python-setuptools python-openssl python-leveldb libleveldb-dev python-pip python-dev build-essential
+     sudo pip install --upgrade pip
+     sudo pip install --upgrade virtualenv
+     sudo pip install jsonrpclib irc plyvel
 
 For the python irc module please note electrum-server currently only supports versions between 11 and 14.0. 
 The setup.py takes care of installing a supported version but be aware of it when installing or upgrading
@@ -235,20 +242,10 @@ of 5 years. You may supply any information for your sign request to identify you
 They are not currently checked by the client except for the validity date.
 When asked for a challenge password just leave it empty and press enter.
 
-    $ openssl genrsa -des3 -passout pass:x -out server.pass.key 2048
-    $ openssl rsa -passin pass:x -in server.pass.key -out server.key
-    writing RSA key
-    $ rm server.pass.key
-    $ openssl req -new -key server.key -out server.csr
-    ...
-    Country Name (2 letter code) [AU]:US
-    State or Province Name (full name) [Some-State]:California
-    Common Name (eg, YOUR name) []: electrum-server.tld
-    ...
-    A challenge password []:
-    ...
-
-    $ openssl x509 -req -days 1825 -in server.csr -signkey server.key -out server.crt
+    cd ~/.electrum
+    openssl genrsa -out server.key 2048
+    openssl req -new -key server.key -out server.csr
+    openssl x509 -req -days 1825 -in server.csr -signkey server.key -out server.crt
 
 The server.crt file is your certificate suitable for the `ssl_certfile=` parameter and
 server.key corresponds to `ssl_keyfile=` in your Electrum server config.
@@ -354,8 +351,6 @@ current server and connect to your new Electrum server. You should see your
 addresses and transactions history. You can see the number of blocks and
 response time in the server selection window. You should send/receive some
 luxs to confirm that everything is working properly.
-
-
 
 License
 -------
